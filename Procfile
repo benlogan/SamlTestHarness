@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/SamlTestHarness.jar
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/SamlTestHarnessRemote.jar
