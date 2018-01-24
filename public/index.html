@@ -5,25 +5,25 @@
         <script>
             function samlPost(relayState) {
                 $("#errorDetails").html("");
-                    
+
                 var relayState = $('#relayState').val();
                 var samlResponse = $('#samlResponse').val()
 
                 console.log("SAML POST. relayState = " + relayState + " samlResponse = " + samlResponse);
-                
+
                 $.ajax({
-                    url: 'http://ldn-vw-v00120:8060/AuthoriseUser?relayState=' + relayState,
+                    url: 'https://samltestharness.herokuapp.com/AuthoriseUser?relayState=' + relayState,
                     type: 'post',
                     data: samlResponse,
                     contentType: 'application/xml',
                     success: function (response) {
                         //console.log(response);
-                                                
+
                         // cheating a bit here, but because the ajax response/redirect isn't handled in the main window, dump out the response instead so that we see it on screen, as evidence that the redirect worked
                         //document.open();
                         //document.write(response);
                         //document.close();
-                        
+
                         // cleaner to write it to a new window for now, just means popups have to be enabled!
                         var w = window.open();
                         $(w.document.body).html(response);
@@ -31,7 +31,7 @@
                     error: function (request, status, error) {
                         console.log(request.responseText);
                         console.log(request.status);
-                        $("#errorDetails").html("<h4>Status Code : " + request.status + "</h4>" + 
+                        $("#errorDetails").html("<h4>Status Code : " + request.status + "</h4>" +
                                                 "<h4>Response Text : " + request.responseText + "</h4>");
                     }
                 });
@@ -41,7 +41,7 @@
     <body>
         <h1>Exane BNP Paribas</h1>
         <h3>SAML Test Harness</h3>
-        
+
         <div>
             <label>Relay State (redirect URL): <input id="relayState" type="text" value="response.html"></label>
         </div>
