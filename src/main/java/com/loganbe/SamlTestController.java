@@ -101,7 +101,7 @@ public class SamlTestController {
 		    	Signature signature = assertion.getSignature(); // or response. ?
 
 		    	// FIXME obviously need to load the cert associated with the issuer
-		    	BasicX509Credential credential = CertUtilities.credentialFromFile("src/main/resources/reddeer_pk.cer");
+		    	BasicX509Credential credential = CertUtilities.credentialFromFile("src/main/resources/test_int_pk.cer");
 		    	if(!ExaneSignatureValidator.validateSignature(signature, credential)) {
 		    		return authenticationErrorResponse("Signature Validation Failed");
 		    	}

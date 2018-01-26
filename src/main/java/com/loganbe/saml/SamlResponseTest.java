@@ -18,33 +18,28 @@ import com.loganbe.xml.XmlUtilities;
 
 /**
  * Integration test with real messages for the end-to-end SAML check
- * 
+ *
  * Loosely based on some notes here;
  * http://sureshatt.blogspot.fr/2012/11/how-to-read-saml-20-response-with.html
- * 
+ *
  * This is the Exane Assertion Consumer Service (ACS)
  */
 public class SamlResponseTest {
 
 	static final String TEST_FILE_PATH = "src/main/resources/testResponseSigned.xml";
-	//static final String TEST_FILE_PATH = "src/main/resources/reddeer/samlResponseSignedAssertion.xml";
 
-	static final String TEST_CERT_PATH = "src/main/resources/x509.cer";
-	//static final String TEST_CERT_PATH = "src/main/resources/reddeer/reddeer.cer";
-	
+	static final String TEST_CERT_PATH = "src/main/resources/test_unit_pk.cer";
+
 	static final String ASSERTION_SUBJECT = "_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7";
-	//static final String ASSERTION_SUBJECT = "test-user";
-	
+
 	static final String ASSERTION_ISSUER = "http://idp.example.com/metadata.php";
-	//static final String ASSERTION_ISSUER = "http://sso.reddeer.com/metadata.php";
-	
+
 	static final String ASSERTION_AUDIENCE = "http://sp.example.com/demo1/metadata.php";
-	//static final String ASSERTION_AUDIENCE = "http://sso.exane.com/metadata.php";
-	
+
 	private static Element rootElement;
 	private static Response response;
 	private static Assertion assertion;
-	
+
 	@BeforeClass
 	public static void setup() {
 
@@ -52,7 +47,7 @@ public class SamlResponseTest {
 			DefaultBootstrap.bootstrap();
 
 			Document doc = XmlUtilities.parseFileToXml(TEST_FILE_PATH);
-			
+
 			//System.out.println("Has Children? " + doc.hasChildNodes());
 			//System.out.println("Has Attributes? " + doc.hasAttributes());
 
@@ -61,7 +56,7 @@ public class SamlResponseTest {
 			rootElement = doc.getDocumentElement();
 
 			response = SamlUtilities.parseResponse(rootElement);
-			
+
 			assertion = response.getAssertions().get(0); // we only expect one assertion
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -71,7 +66,7 @@ public class SamlResponseTest {
 
 	@Test
 	public void testResponseType() {
-		System.out.println("ROOT ELEMENT : " + rootElement.getNodeName());			
+		System.out.println("ROOT ELEMENT : " + rootElement.getNodeName());
 		assertEquals(rootElement.getNodeName(), "samlp:Response");
 	}
 
@@ -79,57 +74,57 @@ public class SamlResponseTest {
 	public void testResponseStatus() {
 		String statusCode = response.getStatus().getStatusCode().getValue();
 		System.out.println("STATUS : " + statusCode);
-		assertEquals(statusCode, "urn:oasis:names:tc:SAML:2.0:status:Success");		
+		assertEquals(statusCode, "urn:oasis:names:tc:SAML:2.0:status:Success");
 	}
-	
+
 	@Test
 	public void testSignature() {
 		// it's the assertion that is signed, not the response itself? not necessarily!
 		Signature signature = response.getSignature();
-				
+
 		if(signature != null) {
 			System.out.println("SIGNATURE : " + signature.toString());
 		} else {
 			System.err.println("SIGNATURE IS NULL");
 		}
-		
+
 		assertTrue(validateSignature(signature));
 	}
-	
+
 	//@Test
 	public void testAssertionSignature() {
 		// it's the assertion that is signed, not the response itself? not necessarily!
 		Signature signature = assertion.getSignature();
-				
+
 		if(signature != null) {
 			System.out.println("SIGNATURE : " + signature.toString());
 		} else {
 			System.err.println("SIGNATURE IS NULL");
 		}
-		
+
 		assertTrue(validateSignature(signature));
 	}
-	
+
 	@Test
 	public void testAssertion() {
-		// reading the subject name (what was authenticated at the IDP) 
+		// reading the subject name (what was authenticated at the IDP)
 		String subject = assertion.getSubject().getNameID().getValue();
 		System.out.println("SUBJECT : " + subject);
 		assertEquals(subject, ASSERTION_SUBJECT);
 
-		// reading the issuer (the IDP who issued the response object) 
+		// reading the issuer (the IDP who issued the response object)
 		String issuer = assertion.getIssuer().getValue();
 		System.out.println("ISSUER : " + issuer);
 		assertEquals(issuer, ASSERTION_ISSUER);
 
-		// reading the audience (to whom the response was issued) 
+		// reading the audience (to whom the response was issued)
 		String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
 		System.out.println("AUDIENCE : " + audience);
 		assertEquals(audience, ASSERTION_AUDIENCE);
 	}
 
 	// FIXME properly source public key!
-	private boolean validateSignature(Signature signature) {	
+	private boolean validateSignature(Signature signature) {
 		// from the response (don't do this in prod!)
 		//X509Certificate cert = (X509Certificate)signature.getKeyInfo().getX509Datas().get(0).getX509Certificates().get(0);
 		//String certFromMessage = cert.getValue();
