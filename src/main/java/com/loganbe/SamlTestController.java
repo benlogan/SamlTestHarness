@@ -125,7 +125,7 @@ public class SamlTestController {
         	//System.out.println("Authorisation Successful. Redirecting to target : " + relayState);
 
         	HttpHeaders httpHeaders = new HttpHeaders();
-        	String location = "http://" + request.getServerName() + "/" + relayState; // stay on same domain for testing!
+        	String location = "https://" + request.getServerName() + "/" + relayState; // stay on same domain for testing!
         	System.out.println("Authorisation Successful. Redirecting to target : " + location);
         	httpHeaders.setLocation(new URI(location));
         	//httpHeaders.setLocation(new URI(relayState));
